@@ -1,47 +1,78 @@
 import * as eventsApi from 'services/api';
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
-import { Searchbar } from 'components/Searchbar/Searchbar';
+import { toast } from 'react-toastify';
+
+// import { Searchbar } from 'components/Searchbar/Searchbar';
 import { ImageGallery } from 'components/ImageGallery/ImageGallery';
+import {
+  SearchbarHeader,
+  SearchForm,
+  SearchButton,
+  SearchInput,
+} from 'components/Searchbar/Searchbar.styled';
+
 import { Loader } from 'components/Loader/Loader';
 
 export default function MoviesPage() {
   const [movies, setMovies] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
-    if (searchQuery === '') {
+    if (searchParams.get('query') !== null) {
+      const newQuery = searchParams.get('query');
+
+      eventsApi.fetchSearch(newQuery).then(r => {
+        const mappedFilms = eventsApi.mapper(r.results);
+        setMovies(mappedFilms);
+        setSearchQuery('');
+      });
+    }
+  }, [searchParams]);
+
+  const handleQueryChange = evt => {
+    setSearchQuery(evt.target.value);
+  };
+
+  const handleSubmit = evt => {
+    evt.preventDefault();
+
+    const newQuery = evt.target.elements.query.value.toLowerCase();
+
+    if (newQuery.trim() === '') {
+      toast.error('Please, enter something');
       return;
     }
 
-    // setStatus('pending');
-
-    eventsApi.fetchSearch(searchQuery).then(searchQuery => {
-      const mappedFilms = eventsApi.mapper(searchQuery.results);
-      setMovies(mappedFilms);
-    });
-  }, [searchQuery]);
-
-  const handleSerchSubmit = newQuery => {
-    if (searchQuery !== newQuery) {
-      setSearchQuery(newQuery);
-      // setPage(1);
-      setMovies([]);
-    }
+    setSearchParams({ query: newQuery });
   };
 
   return (
     <>
-      <Searchbar onSubmit={handleSerchSubmit} />
-      {!movies && <Loader />}
-      {movies && movies.length > 0 && <ImageGallery movies={movies} />}
+      <SearchbarHeader>
+        <SearchForm onSubmit={handleSubmit}>
+          <SearchInput
+            type="text"
+            name="query"
+            value={searchQuery}
+            autocomplete="off"
+            placeholder="Search movies"
+            onChange={handleQueryChange}
+          />
 
-      {/* {status === 'rejected' && (
-        <h1>
-          {searchQuery} - {error.message}
-        </h1>
-      )} */}
-      {/* {status === 'pending' && <Loader />} */}
+          <SearchButton type="submit"> Search</SearchButton>
+        </SearchForm>
+      </SearchbarHeader>
+      {/* <Searchbar
+        onSubmit={handleSerchSubmit}
+        handleQueryChange={handleQueryChange}
+        handleSubmit={handleSubmit}
+      /> */}
+      {!movies && <Loader />}
+      {movies && <ImageGallery movies={movies} />}
+
       <ToastContainer autoClose={3000} />
     </>
   );
