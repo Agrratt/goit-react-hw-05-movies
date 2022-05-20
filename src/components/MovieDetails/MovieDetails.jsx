@@ -37,8 +37,8 @@ export function MovieDetails({ movie }) {
             </Wrapper>
             
             
-            <StyledLink to='cast' >Cast</StyledLink>
-            <StyledLink to='reviews'>Reviews</StyledLink>
+            <StyledLink to='cast' state={location.state} >Cast</StyledLink>
+            <StyledLink to='reviews' state={location.state}>Reviews</StyledLink>
 
               <hr/>         
         </Container>
