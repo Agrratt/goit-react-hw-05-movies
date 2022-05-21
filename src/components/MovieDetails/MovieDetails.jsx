@@ -7,7 +7,7 @@ export function MovieDetails({ movie }) {
     const genresAll = genres.map(evt => evt.name).join(', ');
     const navigate = useNavigate();
     const location = useLocation();
-
+  
     const onGoBack = () => {
         navigate(location?.state?.from ?? '/');
     };
@@ -17,7 +17,6 @@ export function MovieDetails({ movie }) {
             <SectionStyled>
                 <ImageStyled src={`https://image.tmdb.org/t/p/w500/${poster}`} alt={title} />
                 <Info>
-                    {/* <button type='button' onClick={() => navigate('/')}>Go back</button> */}
                     <button type='button' onClick={onGoBack}>
                        Go back
                     </button>
